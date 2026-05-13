@@ -11,13 +11,13 @@ Based on Andrej Karpathy's [LLM Wiki pattern](https://gist.github.com/karpathy/4
 
 ## Trigger Keywords (Activation)
 
-Say this skill is for any of:
-- "整理书签" / "organize bookmarks" / "消化这个链接"
-- "研究 X" / "research X" / "帮我研究"
-- "跑 lint" / "lint" / "知识库检查"
-- "relink" / "建立关联" / "自动链接"
-- "wiki" / "知识图谱" / "第二大脑"
-- "Deep Research" / "深入研究" / "补全知识"
+Activate this skill when the user says anything like:
+- "organize bookmarks" / "digest this link" / "整理书签"
+- "research X" / "help me research" / "帮我研究"
+- "run lint" / "lint check" / "知识库检查"
+- "relink" / "build connections" / "建立关联"
+- "wiki" / "knowledge graph" / "第二大脑"
+- "Deep Research" / "补全知识"
 
 ---
 
