@@ -12,12 +12,12 @@ Based on Andrej Karpathy's [LLM Wiki pattern](https://gist.github.com/karpathy/4
 ## Trigger Keywords (Activation)
 
 Activate this skill when the user says anything like:
-- "organize bookmarks" / "digest this link" / "整理书签"
-- "research X" / "help me research" / "帮我研究"
-- "run lint" / "lint check" / "知识库检查"
-- "relink" / "build connections" / "建立关联"
-- "wiki" / "knowledge graph" / "第二大脑"
-- "Deep Research" / "补全知识"
+- "organize bookmarks" / "digest this link"
+- "research X" / "help me research"
+- "run lint" / "lint check"
+- "relink" / "build connections"
+- "wiki" / "knowledge graph"
+- "Deep Research"
 
 ---
 
@@ -499,9 +499,9 @@ done
 2. Generate 3-5 search queries
    Format: each query should be specific enough to return distinct results
    Example gap "MySQL MVCC":
-     → "MySQL MVCC multi-version concurrency control原理"
-     → "MySQL MVCC undo log实现机制"
-     → "MySQL MVCC ReadView隔离级别"
+     → "MySQL MVCC multi-version concurrency control principles"
+     → "MySQL MVCC undo log implementation"
+     → "MySQL MVCC ReadView isolation levels"
 
 3. Multi-source search
    Execute web_search for each query (max 5 queries)
@@ -634,7 +634,7 @@ When writing A's related to add B:
 |---------|----------------|------------------|
 | Create entity + concept for same topic | Double maintenance, confuses graph | Pick one: named → entity, abstract → concept |
 | Skip back-link when adding related | One-way links break graph traversal | Always sync back-link when modifying related |
-| Use Chinese in slugs | Breaks tooling, inconsistent | Use pinyin or English, not `mysql索引` |
+| Use Chinese in slugs | Breaks tooling, inconsistent | Use pinyin or English, not `mysql-suo-yin` |
 | Put only filename in sources | Loses URL-level traceability | Always include `urls: [https://...]` |
 | Leave concept page with < 3 core principles | Fails quality threshold | Force extraction of ≥ 3 substantive points |
 | Write ingest output as prose description | Hard to execute, format inconsistent | Always use structured Ingest Plan format (table + steps) |
@@ -648,3 +648,9 @@ On first wiki setup, you must create:
 - `wiki/log.md` — operation log (append-only)
 
 Without these, lint and relink cannot run properly.
+
+---
+
+## Author
+
+[zhangmengyang/karpathy-wiki-improve](https://github.com/zhangmengyang/karpathy-wiki-improve)
