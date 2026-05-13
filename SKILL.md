@@ -3,7 +3,7 @@ name: karpathy-wiki-improve
 description: "Karpathy LLM Wiki pattern implementation — full ingest/query/relink/lint/DeepResearch pipeline, automatic knowledge graph maintenance, URL-level source traceability. Use when: user says 'organize bookmarks', 'research X', 'run lint', 'relink', or needs a personal knowledge graph."
 ---
 
-# karpathy-wiki — OpenClaw Implementation v3.0
+# karpathy-wiki — OpenClaw Implementation
 
 Based on Andrej Karpathy's [LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
 
@@ -46,7 +46,7 @@ wiki_root: /path/to/your/wiki  # configure to your local path
 
 ---
 
-## Core Principles (v3.0)
+## Core Principles
 
 1. **sources/ is read-only** — LLM only writes wiki/, never modifies raw sources
 2. **wikilink cross-references** — `[[page-slug]]` syntax for page connections
