@@ -1,12 +1,23 @@
 ---
-name: karpathy-wiki
-version: "3.0.0"
-description: "Karpathy LLM Wiki pattern implementation — full ingest/query/relink/lint/DeepResearch pipeline, automatic knowledge graph maintenance, URL-level source traceability."
+name: karpathy-wiki-improve
+description: "Karpathy LLM Wiki pattern implementation — full ingest/query/relink/lint/DeepResearch pipeline, automatic knowledge graph maintenance, URL-level source traceability. Use when: user says 'organize bookmarks', 'research X', 'run lint', 'relink', or needs a personal knowledge graph."
 ---
 
 # karpathy-wiki — OpenClaw Implementation v3.0
 
 Based on Andrej Karpathy's [LLM Wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
+
+---
+
+## Trigger Keywords (Activation)
+
+Say this skill is for any of:
+- "整理书签" / "organize bookmarks" / "消化这个链接"
+- "研究 X" / "research X" / "帮我研究"
+- "跑 lint" / "lint" / "知识库检查"
+- "relink" / "建立关联" / "自动链接"
+- "wiki" / "知识图谱" / "第二大脑"
+- "Deep Research" / "深入研究" / "补全知识"
 
 ---
 
@@ -217,6 +228,96 @@ sources:
 - [Article Title](https://example.com) — source description
 ```
 
+### Comparison Page
+
+```markdown
+---
+type: comparison
+title: A vs B
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+tags: [tag1, tag2]
+related: [page-slug-a, page-slug-b]
+sources:
+  - file: bookmarks_xxx.md
+    urls:
+      - https://example.com/comparison
+---
+
+# A vs B
+
+> One-line summary: A is better for X, B is better for Y.
+
+## Overview
+Why these two are compared and when this comparison matters.
+
+## Comparison Dimensions
+
+| Dimension | A | B |
+|-----------|---|---|
+| Dimension 1 | detail | detail |
+| Dimension 2 | detail | detail |
+
+## When to Choose A
+- Scenario 1
+- Scenario 2
+
+## When to Choose B
+- Scenario 1
+- Scenario 2
+
+## Related
+- [[page-slug-a]] — A's entity
+- [[page-slug-b]] — B's entity
+
+## Sources
+- [Source Title](https://example.com) — source description
+```
+
+### Synthesis Page
+
+```markdown
+---
+type: synthesis
+title: Topic Overview
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+tags: [tag1, tag2]
+related: [page-slug-1, page-slug-2]
+sources:
+  - file: bookmarks_xxx.md
+    urls:
+      - https://example.com/overview
+---
+
+# Topic Overview
+
+> One-line summary of this knowledge domain.
+
+## Scope
+What this synthesis covers.
+
+## Key Concepts
+- [[concept-1]] — brief description
+- [[concept-2]] — brief description
+
+## Key Entities
+- [[entity-1]] — brief description
+
+## Landscape
+- Trend or pattern 1
+- Trend or pattern 2
+
+## Knowledge Gaps
+- What needs deeper research
+
+## Related
+- [[page-slug-1]] — reason
+
+## Sources
+- [Source Title](https://example.com) — source description
+```
+
 ---
 
 ## Operations
@@ -257,33 +358,42 @@ New/update which pages
 4. Update index.md
 5. Append to log.md
 
-**Output format**:
+**Output format** — always write exactly this structure, no deviations:
+
 ```
----FILE: wiki/concepts/page.md---
-[page content with sources.urls]
----END FILE---
+## Ingest Plan
 
----FILE: wiki/entities/backlink-target.md---
-[update target page, append back-link]
----END FILE---
+### Pages to create/update
+| Action | File | Summary |
+|---------|------|---------|
+| CREATE | wiki/concepts/page-slug.md | 1-line description |
+| UPDATE | wiki/entities/backlink-target.md | add related: page-slug |
 
----FILE: wiki/index.md---
-[append new page entry]
----END FILE---
+### Back-link sync
+- [[A]] → add B to related → check B has A, add if missing
 
----FILE: wiki/log.md---
-[append ingest log entry]
----END FILE---
+### index.md update
+- Add: `- [[page-slug]] — 1-line description (concept/entity)`
+
+### log.md entry
+- `[YYYY-MM-DD] Ingest: N pages, sources: bookmarks_xxx.md`
 ```
+
+**Phase 2 execution**: follow the plan exactly. Write files using the templates in Page Templates section.
 
 ---
 
 ### Query
 
-1. Read `wiki/index.md` to locate relevant pages
-2. Read related pages + extract sources.urls
-3. Use `web_fetch` to trace and verify original URLs
-4. Synthesize answer, annotate source confidence
+**Always follow this priority when answering:**
+
+1. **Read index.md** → find candidate pages by tag/topic match
+2. **Read candidate pages** → extract claims + sources.urls
+3. **web_fetch top sources** → verify critical claims (flag ⚠️ if can't reach)
+4. **Synthesize** → answer with confidence annotation (✅/⚠️/❌)
+5. **Cite sources** → always include the specific URL that confirmed each claim
+
+**When wiki has no relevant page**: fall back to web_search, then optionally ingest the result to wiki.
 
 ---
 
@@ -384,20 +494,49 @@ done
 ```
 1. Discover knowledge gap
    lint report "missing coverage" items
-   user says "help me research XXX"
+   user says "research XXX"
 
-2. Generate search queries
-   LLM generates 3-5 search queries from gap
+2. Generate 3-5 search queries
+   Format: each query should be specific enough to return distinct results
+   Example gap "MySQL MVCC":
+     → "MySQL MVCC multi-version concurrency control原理"
+     → "MySQL MVCC undo log实现机制"
+     → "MySQL MVCC ReadView隔离级别"
 
 3. Multi-source search
-   Execute web_search for each query
+   Execute web_search for each query (max 5 queries)
+   Collect top 3 results per query
 
 4. Ingest results
-   Write search results to raw/sources/
-   Execute ingest to generate new pages
+   Write raw search results to raw/sources/deep-research-YYYYMMDD.md
+   Execute full ingest pipeline
 
 5. relink + lint
-   complete relationships + health check
+   Complete bidirectional links
+   Run lint to verify health
+```
+
+**Deep Research output**:
+```markdown
+## Research Report: [Topic]
+
+### Gap Identified
+[What was missing]
+
+### Search Queries Used
+1. query text → N results
+2. query text → N results
+
+### Key Findings
+- Finding 1 [source](url)
+- Finding 2 [source](url)
+
+### New Pages Created
+- [[new-page-1]] — 1-line description
+- [[new-page-2]] — 1-line description
+
+### Recommendations
+- [next research direction]
 ```
 
 ---
@@ -486,3 +625,26 @@ When writing A's related to add B:
 - ❌ Write A→B only, skip B→A
 - ❌ Leave related empty with no links added
 - ❌ sources has only file, no urls
+
+---
+
+## Common Mistakes
+
+| Mistake | Why it's wrong | Correct approach |
+|---------|----------------|------------------|
+| Create entity + concept for same topic | Double maintenance, confuses graph | Pick one: named → entity, abstract → concept |
+| Skip back-link when adding related | One-way links break graph traversal | Always sync back-link when modifying related |
+| Use Chinese in slugs | Breaks tooling, inconsistent | Use pinyin or English, not `mysql索引` |
+| Put only filename in sources | Loses URL-level traceability | Always include `urls: [https://...]` |
+| Leave concept page with < 3 core principles | Fails quality threshold | Force extraction of ≥ 3 substantive points |
+| Write ingest output as prose description | Hard to execute, format inconsistent | Always use structured Ingest Plan format (table + steps) |
+
+## File Setup Reminder
+
+On first wiki setup, you must create:
+- `purpose.md` — wiki constitution (goal, scope, quality standards)
+- `schema.md` — structure conventions (naming rules, page templates)
+- `wiki/index.md` — entry point with domain overview
+- `wiki/log.md` — operation log (append-only)
+
+Without these, lint and relink cannot run properly.
